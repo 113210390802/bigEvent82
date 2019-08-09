@@ -212,6 +212,16 @@
             }
           })
         })
+
+        //  请求接口 
+        $.get({
+          url : 'http//autumnfish.cn/big/admin/getuser',
+          success : function(res){
+            if(res.code === 200){
+              $('.user_info img , suer_center_link img')
+            }
+          }
+        })
    
    
    </script>
