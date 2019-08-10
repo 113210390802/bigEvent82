@@ -30,73 +30,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>未分类</td>
-              <td>uncategorized</td>
-              <td class="text-center">
-                <a
-                  href='javascript:editTr({"id":"1","slug":"uncategorized","name":"未分类"});'
-                  class="btn btn-info btn-xs"
-                  >编辑</a
-                >
-                <a
-                  href="javascript:deleteTr( 1 );"
-                  class="btn btn-danger btn-xs"
-                  >删除</a
-                >
-              </td>
-            </tr>
-
-            <tr>
-              <td>奇趣事</td>
-              <td>funny</td>
-              <td class="text-center">
-                <a
-                  href='javascript:editTr({"id":"2","slug":"funny","name":"奇趣事"});'
-                  class="btn btn-info btn-xs"
-                  >编辑</a
-                >
-                <a
-                  href="javascript:deleteTr( 2 );"
-                  class="btn btn-danger btn-xs"
-                  >删除</a
-                >
-              </td>
-            </tr>
-
-            <tr>
-              <td>会生活</td>
-              <td>living</td>
-              <td class="text-center">
-                <a
-                  href='javascript:editTr({"id":"3","slug":"living","name":"会生活"});'
-                  class="btn btn-info btn-xs"
-                  >编辑</a
-                >
-                <a
-                  href="javascript:deleteTr( 3 );"
-                  class="btn btn-danger btn-xs"
-                  >删除</a
-                >
-              </td>
-            </tr>
-
-            <tr>
-              <td>爱旅行</td>
-              <td>travel</td>
-              <td class="text-center">
-                <a
-                  href='javascript:editTr({"id":"4","slug":"travel","name":"爱旅行"});'
-                  class="btn btn-info btn-xs"
-                  >编辑</a
-                >
-                <a
-                  href="javascript:deleteTr( 4 );"
-                  class="btn btn-danger btn-xs"
-                  >删除</a
-                >
-              </td>
-            </tr>
+            
           </tbody>
           <tfoot>
             <tr>
@@ -153,6 +87,9 @@
             <button type="button" class="btn btn-primary" id="model_add">
               新增
             </button>
+            <button type="button" class="btn btn-primary" id="model_edit">
+                编辑
+              </button>
           </div>
         </div>
       </div>
@@ -180,173 +117,123 @@
     <script src="./js/template-web.js"></script>
     <!-- 定义模板 -->
     <script id="cate" type="text/html">
-      {{each data}}
+      {{each $data}}
           <tr>
               <td>{{$value.name}}</td>
               <td>{{$value.slug}}</td>
               <td class="text-center">
-                  <a href='javascript:editTr({"id":"{{$value.id}}","slug":"{{$value.slug}}","name":"{{$value.name}}"});' class="btn btn-info btn-xs">编辑</a>
-                  <a href="javascript:deleteTr( {{$value.id}} );" class="btn btn-danger btn-xs">删除</a>
+                  <a href='javascript:;'class="btn btn-info btn-xs"data-id="{{$value.id}}">编辑</a>
+                  <a href="javascript:;" class="btn btn-danger btn-xs" data-id = "{{$value.id}}">删除</a>
               </td>
           </tr>
       {{/each}}
     </script>
     <!-- 自己的逻辑 -->
     <script>
-      /*
-          获取文章分类信息
-            请求地址：http://localhost:8000/admin/category_search
-            请求方式：get
-            请求参数：无
-            步骤
-            1. 进入页面之后
-            2. 通过ajax获取数据
-            3. 数据获取到之后渲染到页面上
-                1. 结合模板引擎来渲染
-                文章新增
-
-        新增分类
-            请求地址：http://localhost:8000/admin/category_add
-            请求方式：post
-            请求参数：
-            步骤
-            1. 点击新增按钮 弹出新增框
-            2. 新增框中输入 name和slug
-            1. 点击取消 关闭
-            2. 点击新增  
-                1. 获取数据
-                2. 调用接口
-                3. 响应回来之后
-
-          分类删除
-            请求地址：http://localhost:8000/admin/category_delete
-            请求方式：post
-            请求参数：id
-            步骤
-            1. 生成每一行的时候，把id到deleteTr()
-            2. 实现deleteTr方法 获取id
-            3. 通过ajax删除对应的数据
-            4. 删除成功之后 重新获取数据（局部刷新）
-
-          */
-
-      $(function() {
-        function getCate() {
-          $.ajax({
-            url: 'http://localhost:8000/admin/category_search',
-            type: 'get',
-            success: function(backData) {
-              console.log(backData)
-              // 调用方法 渲染页面
-              var html = template('cate', backData)
-              $('tbody').html(html)
-            }
-          })
-        }
-        // 删除数据的方法
-        window.deleteTr = function(id) {
-          // console.log(id)
-          // 调用接口
-          $.ajax({
-            url: 'http://localhost:8000/admin/category_delete',
-            type: 'post',
-            data: {
-              id: id
+      //获取所有分类信息
+        $.get({
+          //请求服务器端口
+          url : 'http://localhost:8000/admin/category_search',
+          success : function (res){
+            console.log(res)
+            //通过模板生成结构，加入到tbody中
+            $('tbody').html(template('cate',res.data))
+          }
+        });
+        //设置新增功能
+        $('#model_add').on('click',function(){
+          var nameVal = $('.cate_name').val();
+          var cateVal = $('.cate_slug').val();
+          if(nameVal === '' || cateVal === ''){
+            alert('请将内容填写完整！');
+            return;
+          }
+          $.post({
+            url : 'http://localhost:8000/admin/category_add',
+            data : {
+              name : nameVal,
+              slug : cateVal
             },
-            success: function(backData) {
-              // console.log(backData);
-              if (backData.code == 200) {
-                // 重新获取数据即可
-                getCate()
+            success : function (res) {
+              console.log(res)
+              if(res.code === 200){
+                location.reload();//刷新页面
               }
             }
           })
-        }
 
-        // 弹出编辑框的逻辑
-        window.editTr = function(data) {
-          console.log(data)
-          // forin
-          for (const key in data) {
-            $('input[name=' + key + ']').val(data[key])
-            /*
-              $('input[name=id]).val(data.id)
-              $('input[name=slug]).val(data.slug)
-              $('input[name=name]).val(data.name)
-            */
-          }
-          // 改弹框内容
-          $('.modal-title').text('敬请修改把！！！')
-          $('#model_add')
-            .text('保存')
-            .addClass('btn-success')
-        }
-
-        // 点击新增还原外观
-        $('.btn-add').click(function() {
-          // 改弹框内容
-          $('.modal-title').text('肆意新增吧！')
-          $('#model_add')
-            .text('新增 ')
-            .removeClass('btn-success')
-          // 清空内容
-          $('form input').val('')
         })
+        //开始设置删除功能
+          //设置事件委托
+        $('tbody').on('click','.btn-danger',function () {
+          //获取删除按钮的data-id属性
+            var id = $(this).data('id');
 
-        // 默认调用一次
-        getCate()
-
-        // 点击新增按钮
-        $('#model_add').click(function() {
-          //  如果是保存
-          if ($(this).hasClass('btn-success')) {
-            // 获取数据
-            // var id = $('input[name=id]').val()
-            // var slug = $('input[name=slug]').val()
-            // var name = $('input[name=name]').val()
-            // ajax
-            $.ajax({
-              url: 'http://localhost:8000/admin/category_edit',
-              type: 'post',
-              // data: {
-              //   id: id,
-              //   slug: slug,
-              //   name: name
-              // },
-              data:$('form').serialize(),
-              success: function(backData) {
-                console.log(backData)
-                // 重新获取数据即可
-                if (backData.code == 200) {
-                  getCate()
-                }
-              }
-            })
-            // 局部刷新
-          } else {
-            // 新增
-            $.ajax({
-              url: 'http://localhost:8000/admin/category_add',
-              type: 'post',
-              data: {
-                name: $('.cate_name').val(),
-                slug: $('.cate_slug').val()
+            //q强求服务端做删除操作
+            var tr  = $(this).parents('tr')
+            $.post({
+              url　: 'http://localhost:8000/admin/category_delete',
+              data : {
+                id : id 
               },
-              success: function(backData) {
-                //   console.log(backData)
-                // 隐藏弹出框
-                $('#addModal').modal('hide')
-                if (backData.code == 200) {
-                  //  重新获取数据
-                  getCate()
-                }
+              success : function (res){
+                console.log(res)
+                if(res.code === 200){
+                    tr.remove();
+                    //做tr删除操作
+                }              
               }
-            })
-          }
-          // 关闭弹框
-          $('#addModal').modal('hide')
-        })
-      })
+            });
+
+
+        });
+        //设置编辑功能功能
+        var id ;
+        $('tbody').on('click','.btn-info', function () {
+          //获取 data- id 属性
+          id = $(this).data('id');
+          $('.cate_name').val($(this).parents('tr').children('td').eq(0).text());
+          $('.cate_slug').val($(this).parents('tr').children('td').eq(1).text());
+
+          //s设置编辑按钮显示 将新增按钮隐藏
+          $('#model_add').addClass('hide');
+          $('#model_edit').removeClass('hide');
+
+        });
+
+        $('.btn-add').on('click',function () {
+          $('#model_add').removeClass('hide');
+          $('#model_edit').addClass('hide');
+        });
+        $('#model_edit').on('click',function(){
+          var nameVal = $('.cate_name').val();
+          var cateVal = $('.cate_slug').val();
+          if(nameVal === '' || cateVal === '' ){
+            alert('请完整填写表单！');
+            return;
+          };
+
+          $.post({
+            url : 'http://localhost:8000/admin/category_edit',
+            data : {
+              name : nameVal,
+              slug :cateVal,
+              id : id
+            },
+            success : function (res){
+              console.log(res)
+              if(res.code === 200){
+                location.reload();
+              }
+            }
+          });
+        });
+
+
+
+
+
+    
     </script>
   </body>
 </html>
