@@ -326,6 +326,10 @@
           {{/each}}
       </script>
       <script>
+
+
+        var currentPage = 1 ;
+        var totalPage;
       
         $.get({
           url : 'http://localhost:8000/admin/category_search',
@@ -337,6 +341,13 @@
 
           }
         });
+
+        $('#btnSearch').on('click',function(){
+          //将旧页面销毁
+          $('.pagination').twbsPagination('destroy');
+          //重新加载页面
+          getArtical();
+        })
         function getArtical () {
 
           $.get({
@@ -351,7 +362,33 @@
             success : function (res){
               console.log(res);
               if(res.code === 200){
-                $('tbody').html(template('article',res.data))
+                //将文章想抢加入到页面中
+                $('tbody').html(template('article',res.data));
+                //设置分页功能 ；讲当前最新分页数设置给totalPAge
+                totalPage = res.totalPage;
+                //将以前的旧分页清除
+
+                $('.pagination').twbsPagination({
+                  //总页数
+                  totalPages :totalPage,
+                  //显示页码
+                  visiblepages : 5,
+                  //设置当前页
+                  startPage : 1,
+                  //点击也码进行的操作
+
+                  first : '首页',
+                  last:'尾页',
+                  next : '下一页',
+                  prev : '上一页',
+                  onPageClick : function (ecent,page){
+                    //将当前点记得页码设置给全局变量
+                    currentPage = page ;
+                  //当全局变量修改时重新加载页面数据，并进行展示
+                    getArtical();
+
+                  }
+                })
               }
               
             }
