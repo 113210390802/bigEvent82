@@ -218,10 +218,13 @@
           url : 'http//autumnfish.cn/big/admin/getuser',
           success : function(res){
             if(res.code === 200){
-              $('.user_info img , suer_center_link img')
+              $('.user_info img , suer_center_link img').css('src', res.data.user_pic);
+              $('.user_info i').text(res.data.nickname);
             }
           }
         })
+
+        
    
    
    </script>
